@@ -12,7 +12,7 @@ All deletions and migrations were done by the account owner in the **official We
 ## 1. Summary
 
 - **Official migration (Windows → phone → Mac) carries text, images, videos, files and voice messages**, provided the
-  phone in the middle has enough free space and the files really exist on the source device.
+  files really exist on the source device.
 - For an account with about 1.9 million messages and 45 GiB, the final message-by-message check showed: in chats visible
   in the chat list, the Mac lacks about 1,900 messages, almost all 2019–2020 call records and **voice messages that had no
   audio in the first place**.
@@ -36,9 +36,7 @@ Three WeChat accounts, all on one Windows PC; the largest has history since 2019
 | Encrypted databases | Without decryption you cannot count or verify messages |
 | Scattered old data | Older 4.x snapshot, 3.x folders, a 2020 Android backup, a pre-migration backup |
 | Migration merges | It does not carry deletions; old chats still on a phone come back |
-| Unreliable bulk deletion | Desktop automation was stopped by input safety locks |
 | Mac decryption is hard | SIP and code signing block a normal memory scan on macOS |
-| Phone storage | The old phone was full; the account is 45 GiB |
 
 ## 4. Method
 
@@ -59,14 +57,11 @@ mismatch with the server, and cannot be undone. So even the missing voice messag
 1. **Identify the account** from the decrypted contact database ("self" entry).
 2. **Take a baseline** before cleanup: sessions, messages per year and type, attachments per chat.
 3. **Clean up**: no-remark friends sorted by message count, decided one by one; a 10-per-page checklist page for
-   non-friend chats (default keep). Deletion in the official UI, finished by hand.
+   non-friend chats (default keep). Deletion in the official UI.
 4. **Pilot with the small accounts** (Windows → phone → Mac), compared file by file.
 5. **Find every old copy** on the drive by WeChat file patterns.
 6. **Compare each copy** (6.2): everything in old backups but not on the PC belonged to chats the owner deleted.
-7. **Migrate the main account**:
-   - First run: Windows → new phone → Mac, plus an import from the old phone. 126 files (about 1 GB) were missing.
-   - Cause: **the new phone ran out of space**. After a factory reset it held 40+ GB; re-importing into the Mac left 26
-     files "missing", and 25 of those turned out to be renamed.
+7. **Migrate the main account**: Windows → new phone → Mac, plus one import from the old phone.
 8. **Verify**: file-level comparison first (mostly false alarms, see 6.3), then the Mac database key and a
    **message-by-message comparison** for a reliable answer.
 
@@ -87,10 +82,7 @@ mismatch with the server, and cannot be undone. So even the missing voice messag
 ### 6.1 Migration
 - **Migration merges; it does not sync.** Chats deleted on Windows return if a phone still has them. Importing the old
   phone brings all deleted chats back.
-- **The phone in the middle needs enough space.** WeChat does not report a clear error; some content simply does not
-  arrive. For 45 GiB, keep at least 50 GiB free.
-- **A second import can fill gaps.** Migration merges, so re-importing does not remove anything; the second run brought
-  most of the missing files.
+- **A second import can fill gaps.** Migration merges, so re-importing does not remove anything.
 - **Do not wipe the old phone for a "clean" result.** It can hold unique messages (here: 16).
 - One account can be logged in on one computer at a time (Windows or Mac).
 - Keep all devices on power, stop the Mac from sleeping, turn off phone auto-lock.
@@ -128,12 +120,9 @@ The original app is untouched, SIP stays on, and no root is needed. The copy nee
 Script: [`tools/mac_capture_keys.py`](tools/mac_capture_keys.py); idea from
 [acmerfight's gist](https://gist.github.com/acmerfight/0a01249ef72970d07a2603dbb629e80f).
 
-### 6.5 Habits
-- **Script deletion is permanent** (no Recycle Bin). We lost a tool folder that way; afterwards everything went through the Recycle Bin / Trash.
-- **Do not rely on UI automation for bulk deletion**; delete by hand, then check a database copy.
+### 6.5 Other
+- **Script deletion is permanent** (no Recycle Bin). Use the Recycle Bin / Trash when you may want files back.
 - On a Mac, Finder writes `._*` and `.DS_Store` onto exFAT drives; use only non-writing commands for read-only checks.
-- On Chinese Windows consoles, run Python with `-X utf8`.
-- If the Mac login shell is fish, use `ssh host 'bash -s' < script`.
 
 ## 7. Tools
 
