@@ -165,7 +165,7 @@ Output is counts, dates and md5[:8] chat IDs; names only with `--show-names`; ne
 
 - Use these methods and scripts only on your own account and devices.
 - Keys and decryption are for checking your own data. Never upload or share keys, databases or chat content.
-- WeChat versions and formats change. This is based on Windows 4.2, Mac 4.1.15, macOS 27.2, November 2026.
+- WeChat versions and formats change. This is based on Windows WeChat 4.2.0.12 (cleanup and old-data checks) and 4.2.0.13 (the actual migration; auto-updated on 2026-11-10), Mac WeChat 4.1.15 and macOS 27.2.1, November 2026.
 
 ## License
 

@@ -12,7 +12,7 @@ Run (log in with "Enter WeChat" + phone confirmation in the window that appears;
         ~/Library/Containers/com.tencent.xinWeChat/Data/Documents/xwechat_files/<wxid_xxx_1a2b>/db_storage \
         ~/wxkey/keys.json --timeout 300
 The script kills the copy at the end. Afterwards: move WeChat-trial.app to the Trash, start the original WeChat,
-and delete keys.json when you are done. Tested: macOS 27.2, WeChat 4.1.15, arm64.
+and delete keys.json when you are done. Tested: macOS 27.2.1, WeChat 4.1.15, arm64.
 Method follows the CCKeyDerivationPBKDF breakpoint idea from https://gist.github.com/acmerfight/0a01249ef72970d07a2603dbb629e80f
 """
 import argparse
