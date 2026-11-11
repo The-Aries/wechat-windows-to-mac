@@ -14,8 +14,8 @@ All deletions and migrations were done by the account owner in the **official We
 - **Official migration (Windows → phone → Mac) carries text, images, videos, files and voice messages**, provided the
   files really exist on the source device.
 - For an account with about 1.9 million messages and 45 GiB, the final message-by-message check showed: in chats visible
-  in the chat list, the Mac lacks about 1,900 messages, almost all 2019–2020 call records and **voice messages that had no
-  audio in the first place**.
+  in the chat list, the Mac lacks 1,948 messages; about 80% are call records and **voice messages that had no audio in the
+  first place**, and more than half date from 2019–2020.
 - The hardest part is not the migration but **deciding what is missing**. Comparing by file name marks many renamed
   images as missing. Check against the message records.
 
@@ -42,7 +42,8 @@ Three WeChat accounts, all on one Windows PC; the largest has history since 2019
 
 ### 4.1 What "read-only" means
 
-**No WeChat database or file was ever modified.**
+**No WeChat database was ever modified.** The only write into a WeChat folder was a test that copied 6 image files to
+the Mac; they were removed afterwards.
 
 - To look at data, the database files (with `-wal`, `-shm`) were **copied** to a temporary folder, decrypted there,
   opened read-only, counted, and deleted.
@@ -50,7 +51,7 @@ Three WeChat accounts, all on one Windows PC; the largest has history since 2019
 - After each step, a new database copy was checked.
 
 Reading a database does not mean changing it. Writing into WeChat's databases can cause client errors, corruption or a
-mismatch with the server, and cannot be undone. So even the missing voice messages were **not** written into the Mac database.
+mismatch with the server, and cannot be undone. So even when messages were found missing on the Mac, **nothing** was written into its database.
 
 ### 4.2 Steps
 
@@ -60,7 +61,7 @@ mismatch with the server, and cannot be undone. So even the missing voice messag
    non-friend chats (default keep). Deletion in the official UI.
 4. **Pilot with the small accounts** (Windows → phone → Mac), compared file by file.
 5. **Find every old copy** on the drive by WeChat file patterns.
-6. **Compare each copy** (6.2): everything in old backups but not on the PC belonged to chats the owner deleted.
+6. **Compare each copy** (6.2): apart from 4 documents, everything in old backups but not on the PC belonged to chats the owner deleted.
 7. **Migrate the main account**: Windows → new phone → Mac, plus one import from the old phone.
 8. **Verify**: file-level comparison first (mostly false alarms, see 6.3), then the Mac database key and a
    **message-by-message comparison** for a reliable answer.
@@ -69,40 +70,40 @@ mismatch with the server, and cannot be undone. So even the missing voice messag
 
 | Item | Result |
 | --- | --- |
-| Two small accounts | Videos 313/313 identical; files 35/36 identical (the last differs only by a duplicate-name suffix); attachments nearly identical |
+| Smaller account (the second one) | Videos 313/313 identical; files 35/36 identical (the last differs only by a duplicate-name suffix); attachments nearly identical |
 | Main account (~1.94 M messages) | In visible chats the Mac lacks 1,948: 917 call records, 622 voice, 295 links/files, 71 text, the rest emoji/system/image |
-| The missing voice messages | On Windows they have a message row but **no audio**, and no backup holds the audio, so migration skipped them |
+| The missing voice messages | On Windows they have a message row but **no audio**, and none of the checked backups holds the audio, so migration skipped them |
 | Leftover chats not in the chat list | 32 chats / ~58,000 messages were not migrated; they were invisible on Windows too |
-| Messages only on the old phone | 16 |
-| Deleted chats | Came back on the Mac and on Windows because the old phone was imported (accepted by the owner) |
-| Old backups | All 83,538 messages of the 2020 Android backup are on the PC; everything else in the old 4.x snapshot belonged to deleted chats |
+| Messages on the Mac but not on Windows | 16 (probably from the old phone) |
+| Deleted chats | Came back on the Mac and on Windows, probably because of the old-phone import (accepted by the owner) |
+| Old backups | All 83,538 messages of the 2020 Android backup are on the PC; messages in the old 4.x snapshot but not on the PC all belonged to deleted or cleared chats; 4 documents exist only in the snapshot |
 
 ## 6. Pitfalls
 
 ### 6.1 Migration
 - **Migration merges; it does not sync.** Chats deleted on Windows return if a phone still has them. Importing the old
-  phone brings all deleted chats back.
+  phone brings back the deleted chats it still holds.
 - **A second import can fill gaps.** Migration merges, so re-importing does not remove anything.
-- **Do not wipe the old phone for a "clean" result.** It can hold unique messages (here: 16).
+- **Do not wipe the old phone for a "clean" result.** It can hold unique messages.
 - One account can be logged in on one computer at a time (Windows or Mac).
 - Keep all devices on power, stop the Mac from sleeping, turn off phone auto-lock.
 
 ### 6.2 Old data
 - **Archives can hide an older version**: an Android backup folder had an extracted `EnMicroMsg.db` and an earlier one in
   `com.tencent.mm.tar.gz` with a `-wal` (3 commits). Check both; apply the WAL.
-- **File size says little**: a 3.x `MSG0.db` is 50 MiB when created.
-- **3.x keys** come only from a 3.x client logged in to that account. Without a key, compare attachment folders:
+- **File size says little**: several 3.x accounts that were used for one day each have a `MSG0.db` of exactly 50 MiB, apparently preallocated.
+- **3.x keys** generally come only from a 3.x client logged in to that account. Without a key, compare attachment folders:
   3.x `FileStorage/MsgAttach/<md5>` and 4.x `msg/attach/<md5>` use the same md5.
-- **Android `EnMicroMsg.db`** key = first 7 chars of `md5(IMEI + uin)`; newer Android uses the IMEI `1234567890ABCDEF`.
+- **Android `EnMicroMsg.db`** key = first 7 chars of `md5(IMEI + uin)`; our backup used the fixed IMEI `1234567890ABCDEF` (common on newer Android).
 
 ### 6.3 Checking
 - **Comparing images by file name gives false alarms.** Windows keeps `_W` image files; after going through the phone,
-  the Mac stores the same image under another name and with different bytes. By name, 12,000 images looked missing; they
-  all opened on the Mac.
+  the Mac apparently stores the same image under another name and format. By name, and even by content, 12,000 images
+  looked missing; every image spot-checked opened at full size on the Mac.
 - **Spot checks need a before-and-after.** A "copy then it displays" test without checking the state before copying
   proves nothing.
 - **A message row is not its content.** 4.x stores voice rows in `message_*.db` and audio in `media_*.db` (`VoiceInfo`).
-  A row without audio shows in the chat, cannot play, and is skipped by migration.
+  A row without audio is skipped by migration and does not appear on the Mac.
 - **Match messages by server ID, not by content** (Android and PC encode some emoji differently); local messages have no
   server ID, so match them by time + type.
 - Message content may be zstd-compressed (`28 b5 2f fd`); base type is `local_type & 0xFFFFFFFF`.
@@ -132,7 +133,7 @@ Script: [`tools/mac_capture_keys.py`](tools/mac_capture_keys.py); idea from
 | --- | --- | --- |
 | Official WeChat client | Deletion, migration | The only way data was changed |
 | [WeChatMsg-4x](https://github.com/chenanhan230-del/WeChatMsg-4x) (GPL-3.0) | 4.x keys from the running Windows client; decryption | All 35 databases; the scripts here depend on it |
-| [acmerfight's gist](https://gist.github.com/acmerfight/0a01249ef72970d07a2603dbb629e80f) | Method for 4.x keys on macOS | Own script along its idea; all 29 databases |
+| [acmerfight's gist](https://gist.github.com/acmerfight/0a01249ef72970d07a2603dbb629e80f) | Method for 4.x keys on macOS | Own script along its idea; 28 of 29 databases (including the message, session and contact databases) |
 | [WeFlow](https://github.com/334456777/WeFlow) | Find account folders | Found accounts; key step failed because WeChat was not running |
 
 ### 7.2 Scripts in this repository (`tools/`, all read-only)
@@ -157,8 +158,8 @@ Output is counts, dates and md5[:8] chat IDs; names only with `--show-names`; ne
 
 - **Voice on the old phone.** 624 voice messages have no audio on the PC or in any backup. Only the old phone was not
   checked. If they play there, migrate **only those chats**, never the whole phone (deleted chats would return).
-- 86 leftover chats not in the chat list (~220,000 messages, 0.5 GB) remain in the Windows database. They are invisible
-  in the UI, so they cannot be deleted there; the database was not edited.
+- 86 leftover chats not in the chat list (~220,000 messages, 0.5 GB) remain in the Windows database. They are not in the chat
+  list and no official way to delete them was found; the database was not edited.
 
 ## 9. Notes
 
