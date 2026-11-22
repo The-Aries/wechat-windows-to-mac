@@ -1,4 +1,4 @@
-[English](README.en.md) | 中文
+中文 | [English](README.en.md)
 
 # 把微信聊天记录从 Windows 搬到 Mac：一次完整的整理、迁移与核对记录
 

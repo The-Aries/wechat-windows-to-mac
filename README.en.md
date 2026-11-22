@@ -1,4 +1,4 @@
-English | [中文](README.md)
+[中文](README.md) | English
 
 # Moving WeChat chat history from Windows to Mac: a full record of cleanup, migration and verification
 
